@@ -1,0 +1,2 @@
+int32 left_distance
+int32 right_distance
