@@ -9,5 +9,5 @@ void reportData(int left_dist_mm, int right_dist_mm)
 	Serial.print(left_dist_mm);
 	Serial.print(",");
 	Serial.print(right_dist_mm);
-	Serial.print("\n");
+	Serial.print("\r\n");
 }

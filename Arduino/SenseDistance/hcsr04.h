@@ -3,7 +3,6 @@
 #ifndef HCSR04_h
 #define HCSR04_h
 
-#include "Arduino.h"
 
 class HCSR04
 {

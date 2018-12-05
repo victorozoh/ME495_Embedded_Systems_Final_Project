@@ -29,10 +29,14 @@ unsigned int HCSR04::echoInMicroseconds()
     digitalWrite(_trigger, LOW);  
     // Why don't I just use? "return pulseIn(_echo, HIGH);"
 	// Arduino Primo doesn't have access to pulseIn.
-    while(digitalRead(_echo) == LOW);
+	
+    /*while(digitalRead(_echo) == LOW);
     int pulseStart = micros();
     while(digitalRead(_echo) == HIGH);
-    return micros() - pulseStart;
+    return micros() - pulseStart;*/
+
+	// Petras Edit:
+	return pulseIn(_echo, HIGH, 7500);
 }
 
 

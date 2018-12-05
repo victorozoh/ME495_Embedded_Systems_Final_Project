@@ -10,8 +10,8 @@ const float S_PER_MS	= 0.001;
 
 // Configuration for the distance sensors
 const int RANGE_MIN		= 20;
-const int RANGE_MAX		= 4000;
+const int RANGE_MAX		= 500;
 
 // Communication constants
-const int BAUD_RATE				= 115200;
+#define BAUD_RATE				115200
 const float MEASUREMENT_PERIOD	= 0.1;
