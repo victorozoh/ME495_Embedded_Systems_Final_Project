@@ -34,9 +34,11 @@ def serial_ports():
     return result
 
 def runMe():
-    ser = serial.Serial('/dev/tty.usbserial',115200)
+    ser = serial.Serial(serial_ports()[0],115200)
+    ser.close()
+    ser.open()
     while 1:
-        print ser.readLine()
+        print(ser.readline())
 
 
 if __name__ == '__main__':
