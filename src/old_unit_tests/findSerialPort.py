@@ -5,7 +5,6 @@ import serial
 import serial.tools.list_ports
 
 def runMe():
-<<<<<<< HEAD
 	# find Serial ports
 	sPorts = [comport.device for comport in serial.tools.list_ports.comports()]
 	print(sPorts)
@@ -16,7 +15,7 @@ def runMe():
 	ser.port = sPorts[0]
 	ser.open()
 	while 1:
-		print ser.read(100)
+		print(ser.readline())
 
 if __name__ == '__main__':
     runMe()

@@ -4,6 +4,7 @@
 import rospy
 import numpy as np
 import serial
+import serial.tools.list_ports
 
 # Messages
 from sawyer_pong.msg import measured_distances
@@ -18,8 +19,12 @@ def adjust_measurement(measurement, calibration_value):
 	return measurement*calibration_value
 
 def process_incoming_data(data_in):
-	# Do nothing for now
-	return [0,0]
+	# remove end-line characters
+	data_in = data_in[:-2]
+	splitData = data_in.split(',')
+	return [int(splitData[0]), int(splitData[1])]
+	#[int(s) for s in data_in.split(',')]
+
 
 
 #########################################
@@ -42,23 +47,19 @@ def publish_measurements():
 	hand_positions = measured_distances()
 
 	# Setup the serial port
-	ser = serial.Serial()
-	ser.port		= arduino_serial_port
-	ser.baudrate	= arduino_serial_baud
-	ser.bytesize	= serial.EIGHTBITS
-	ser.parity		= serial.PARITY_NONE
-	ser.stopbits	= serial.STOPBITS_ONE
-	ser.timeout		= 1
-	ser.xonxoff		= False
-	ser.rtscts		= False
-	ser.dsrdtr		= False
-	ser.writeTimeout= 2
+	# find Serial ports
+	sPorts = [comport.device for comport in serial.tools.list_ports.comports()]
+	print(sPorts)
 
-	ser.reset_input_buffer()
+	# Open the com port
+	ser = serial.Serial()
+	ser.baudrate = 115200
+	ser.port = sPorts[0]
 
 	try:
 		ser.close()
 		ser.open()
+		ser.reset_input_buffer()
 	except:
 		print("Error accessing serial port")
 		exit()
@@ -66,29 +67,36 @@ def publish_measurements():
 	# Perform time setup
 	# None needed. Tick rate is defined on the arduino
 
-	while not rospy.is_shutdown():		
+	while not rospy.is_shutdown():
 		# Wait for message on Serial
-		data_in = read_until('\n')
-		print(data_in)
-		
-		# interpret the data
-		[meas_left, meas_right] = process_incoming_data(data_in)
-		meas_left = adjust_measurement(meas_left,calib_distsensor_left)
-		meas_right = adjust_measurement(meas_right,calib_distsensor_right)
-		
-		# Publish the measurements
-		hand_positions.left_distance = meas_left
-		hand_positions.right_distance = meas_right
+		try:
+			data_in = ser.readline()
+		except:
+			pass
 
-		hand_position_publisher.publish(hand_positions)
-		
+		# interpret the data
+		try:
+			[meas_left, meas_right] = process_incoming_data(data_in)
+
+			meas_left = adjust_measurement(meas_left,calib_distsensor_left)
+			meas_right = adjust_measurement(meas_right,calib_distsensor_right)
+
+			##print([meas_left,meas_right])
+			# Publish the measurements
+			hand_positions.left_distance = meas_left
+			hand_positions.right_distance = meas_right
+
+			hand_position_publisher.publish(hand_positions)
+		except:
+			pass
+
 
 
 #########################################
 # Boilerplate Code
 if __name__ == '__main__':
 	try:
-		publish_measurementsr()
+		publish_measurements()
 	except rospy.ROSInterruptException:
 		pass
 0
