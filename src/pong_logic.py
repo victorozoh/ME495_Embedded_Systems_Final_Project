@@ -4,10 +4,10 @@
 # Created: Dec 11, 2018
 #######################################
 # Import Required Libraries
-import rospy
-import numpy as np
-import pyfiglet
-from geometry_msgs.msg import Twist
+import 	rospy
+import 	numpy as np
+import 	pyfiglet
+from 	geometry_msgs.msg import Twist
 
 # Messages
 from sawyer_pong.msg import measured_distances
@@ -25,7 +25,6 @@ class xy_vector:
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
-
 
 #######################################
 # Global Variables
@@ -76,7 +75,7 @@ def get_ball_start_velocity(ball_velocity):
 	return start_vel
 ####
 def ball_expected_position(ball_logic_position, ball_cmd_vel, delta_time):
-	
+
 
 	expected_position.x = ball_logic_position.x + ball_cmd_vel.x * delta_time
 	expected_position.y = ball_logic_position.y + ball_cmd_vel.y * delta_time
@@ -109,20 +108,20 @@ def check_bounds(position, bound, last_bounce):
 
 	return [do_bounce, new_bounce]
 ####
-def bounce_up(ball_velocity):
+def bounce_top(ball_velocity):
 	vel_new.x = ball_velocity.x
-	vel_new.y = -1* ball_velocity.y
+	vel_new.y = -1* np.abs(ball_velocity.y)
 	result = pyfiglet.figlet_format("BONK", font = "drpepper")
 	return vel_new
-def bounce_down(ball_velocity):
+def bounce_bottom(ball_velocity):
 	vel_new.x = ball_velocity.x
-	vel_new.y = -1* ball_velocity.y
+	vel_new.y = np.abs(ball_velocity.y)
 	result = pyfiglet.figlet_format("BLIP", font = "drpepper")
 	return vel_new
-def bounce_left(ball_velocity, left_hand_position, ball_position, paddle_size):
+def bounce_side_left(ball_velocity, left_hand_position, ball_position, paddle_size):
 	if np.abssolute(ball_position.y-left_hand_position) < (paddle_size/2):
 		vel_new.y = ball_velocity.y
-		vel_new.x = -1* ball_velocity.x
+		vel_new.x = np.abs(ball_velocity.x)
 		result = pyfiglet.figlet_format("BEEP", font = "drpepper")
 		return [vel_new, False]
 	else:
@@ -130,10 +129,10 @@ def bounce_left(ball_velocity, left_hand_position, ball_position, paddle_size):
 		vel_new.y = 0
 		result = pyfiglet.figlet_format("POINT FOR RIGHT", font = "drpepper")
 		return [vel_new, True]
-def bounce_right(ball_velocity, left_hand_position, ball_position, paddle_size):
+def bounce_side_right(ball_velocity, left_hand_position, ball_position, paddle_size):
 	if np.abssolute(ball_position.y-right_hand_position) < (paddle_size/2):
 		vel_new.y = ball_velocity.y
-		vel_new.x = -1* ball_velocity.x
+		vel_new.x = np.abs(ball_velocity.x)*-1
 		result = pyfiglet.figlet_format("BOOP", font = "drpepper")
 		return [vel_new, False]
 	else:
@@ -146,13 +145,13 @@ def bounce_the_ball(ball_velocity,last_bounce, left_hand_position, right_hand_po
 	score_happened = False
 	# Do the bounces
 	if last_bounce == 'lf':
-		[vel_new, score_happened] = bounce_left(ball_velocity, left_hand_position, ball_position, paddle_size)
+		[vel_new, score_happened] = bounce_side_left(ball_velocity, left_hand_position, ball_position, paddle_size)
 	if last_bounce == 'rt':
-		[vel_new, score_happened] = bounce_right(ball_velocity, right_hand_position, ball_position, paddle_size)
+		[vel_new, score_happened] = bounce_side_right(ball_velocity, right_hand_position, ball_position, paddle_size)
 	if last_bounce == 'up':
-		vel_new = bounce_up(ball_velocity)
+		vel_new = bounce_top(ball_velocity)
 	if last_bounce == 'dn':
-		vel_new = bounce_down(ball_velocity)
+		vel_new = bounce_bottom(ball_velocity)
 		ball_velocity,
 	return [vel_new, score_happened]
 
@@ -172,17 +171,17 @@ def pong_logic():
 	#######################ball_velocity *
 	# Get parameters
 	# TODO english_amount     = rospy.get_param('~english_amount',0)
-	paddle_size        = rospy.get_param('~paddle_size',20)
+	paddle_size        = rospy.get_param('~paddle_size',200)
 	# TODO ball_velocity_incr = rospy.get_param('~ball_velocity_incr',1)
-	#ball_velocity      = rospy.get_param('~ball_velocity',10)
-	max_score          = rospy.get_param('~max_score',5)
+	ball_speed      = rospy.get_param('~ball_velocity',10)
+	max_score          = rospy.get_param('~max_score',1)
 
 	circle_tick_rate = rospy.get_param('~circle_tick_rate', 50)
 
 	#######################
 	# Create Publishers
 	hand_velocity_publisher = rospy.Publisher('hand_vel', Twist, queue_size=1)
-	
+
 	#TODO: hand_position_publisher = rospy.Publisexit her('hand_vel', hand_vel, queue_size=1)
 
 	#######################
@@ -195,14 +194,13 @@ def pong_logic():
 	# Create the message variables
 	# TODO: Message_twist
 	# TODO: Message_position
-	ball_velocity=xy_vector(5.0,5.0)
 	vel_new_twist=Twist()
-	
+
 
 	#######################
 	# Create start variables
 	score           = [0,0]
-	ball_cmd_vel    = get_ball_start_velocity(ball_velocity)
+	ball_cmd_vel    = get_ball_start_velocity(ball_speed)
 	left_hand_position  = hand_positions[0]
 	right_hand_position = hand_positions[1]
 
@@ -216,13 +214,14 @@ def pong_logic():
 
 	# TEMP. DELETE ME
 	ball_logic_position = xy_vector(50,50)             #get from sub
+	#TODO: Put hand at default Position
 	bounds = bound_lrud(0,100,100,0)          # get from Subscriber (or param or paramserver or sub, based on ambition)
 
 	#######################
 	# Main Loop
 	while not rospy.is_shutdown():
 		#####################
-		# TODO: LIES LIES LIES LIES 
+		# TODO: LIES LIES LIES LIES
 		ball_recieved_position = ball_logic_position
 		#####################
 
@@ -233,14 +232,12 @@ def pong_logic():
 
 		# Get Position of robot arm
 		# TODO: position_subscriber.get
-		# TODO: robo_position = transform_position()[1]np.max(score) >= max_score:
+		# TODO: robo_position = transform_position()
 
 
 		# Calculate position to use for logic
 		ball_logic_position = combine_ball_positions(ball_expected_position(ball_logic_position, ball_cmd_vel, delta_time), ball_recieved_position)
-		
-		
-		
+
 		# Get Hand Positions
 		left_hand_position  = hand_positions[0]
 		right_hand_position = hand_positions[1]
