@@ -41,8 +41,17 @@ def disp_win(score):
 		pyfiglet.figlet('LEFT PLAYER WINS')
 	else:
 		pyfiglet.figlet_format('RIGHT PLAYER WINS')
+
+def disp_game(bounds, left_hand_position,right_hand_position, ball_logic_position, paddle_size):
+	arenaDim = xy_vector(50,20)
+	print('--------------------------------------------------')
+	lh_ratio = left_hand_position/(bounds.yhigh - bounds.ylow)
+	rh_ratio = right_hand_position/(bounds.yhigh - bounds.ylow)
+	ballPos = xy_vector(ball_logic_position.x/(bounds.xhigh - bounds.xlow),ball_logic_position.y/(bounds.yhigh - bounds.ylow))
+	ps_ratio = paddle_size / (bounds.yhigh - bounds.ylow)
+
 ####
-def get_sign():
+def rand_sign():
 	choose = numpy.rand()
 	if choose >= 0.5:
 		return 1
@@ -50,8 +59,8 @@ def get_sign():
 		return -1
 ##
 def get_ball_start_velocity(ball_velocity):
-	xx = (np.rand()*0.8 + 0.2)*secrets.choice([-1,1])
-	yy = (np.rand()*0.4 + 0.0)*secrets.choice([-1,1])
+	xx = (np.rand()*0.8 + 0.2)*rand_sign()
+	yy = (np.rand()*0.4 + 0.0)*rand_sign()
 
 	norm = np.sqrt(xx*xx + yy*yy)
 	xx = ball_velocity * xx / norm
@@ -125,7 +134,7 @@ def bounce_right(ball_velocity, left_hand_position, ball_position, paddle_size):
 		result = pyfiglet.figlet_format("POINT FOR LEFT", font = "drpepper")
 		return [vel_new, True]
 
-def bounce_the_bayll(ball_velocity,last_bounce, left_hand_position, right_hand_position, ball_position, paddle_size):
+def bounce_the_bayll(ball_velocity,last_bouncget_e, left_hand_position, right_hand_position, ball_position, paddle_size):
 	score_happened = False
 	# Do the bounces
 	if last_bounce == 'lf':
@@ -207,7 +216,7 @@ def pong_logic():
 
 		# Time Calcs
 		last_time   = now_time
-		now_time    = ros.rospy.get_time - start_time
+		now_time    = ros.rospyget_.get_time - start_time
 		delta_time  = now_time - last_time
 
 		# Get Position of robot arm
@@ -244,6 +253,7 @@ def pong_logic():
 				# TODO: hand_position_publisher move handd to center
 
 		# Display
+		disp_game(bounds, left_hand_position,right_hand_position, ball_logic_position)
 
 		# If win, end game0[1]
 		if np.max(score) >= max_score:
