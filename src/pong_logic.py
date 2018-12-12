@@ -6,11 +6,11 @@
 # Import Required Libraries
 import 	rospy
 import 	numpy as np
-import 	pyfiglet
+#import 	pyfiglet
 from 	geometry_msgs.msg import Twist
 
 # Messages
-from sawyer_pong.msg import measured_distances
+#from sawyer_pong.msg import measured_distances
 
 #######################################
 # Create Classes
@@ -37,6 +37,7 @@ vel_new=xy_vector(0,0)
 
 #######################################
 # Helper Functions
+'''
 def disp_score(score):
 	pyfiglet.figlet_format('SCORE', font = "drpepper")
 	pyfiglet.figlet_format(sprint('%d to %d',score[0],score[1]), font = "drpepper")
@@ -46,7 +47,7 @@ def disp_win(score):
 		pyfiglet.figlet('LEFT PLAYER WINS')
 	else:
 		pyfiglet.figlet_format('RIGHT PLAYER WINS')
-
+'''
 def disp_game(bounds, left_hand_position,right_hand_position, ball_logic_position, paddle_size):
 	arenaDim = xy_vector(50,20)
 	print('--------------------------------------------------')
@@ -63,13 +64,13 @@ def rand_sign():
 	else:
 		return -1
 ##
-def get_ball_start_velocity(ball_velocity):
+def get_ball_start_velocity(ball_speed):
 	xx = (np.random.rand()*0.8 + 0.2)*rand_sign()
 	yy = (np.random.rand()*0.4 + 0.0)*rand_sign()
 
 	norm = np.sqrt(xx*xx + yy*yy)
-	xx = ball_velocity.x * xx / norm
-	yy = ball_velocity.y * yy / norm
+	xx = ball_speed * xx / norm
+	yy = ball_speed * yy / norm
 
 	start_vel = xy_vector(xx,yy)
 	return start_vel
@@ -108,37 +109,37 @@ def check_bounds(position, bound, last_bounce):
 
 	return [do_bounce, new_bounce]
 ####
-def bounce_top(ball_velocity):
+def bounce_top(ball_velocity): # THIS takes in xy_vector(xx,yy)
 	vel_new.x = ball_velocity.x
 	vel_new.y = -1* np.abs(ball_velocity.y)
-	result = pyfiglet.figlet_format("BONK", font = "drpepper")
+	#result = pyfiglet.figlet_format("BONK", font = "drpepper")
 	return vel_new
-def bounce_bottom(ball_velocity):
+def bounce_bottom(ball_velocity): # THIS takes in xy_vector(xx,yy)
 	vel_new.x = ball_velocity.x
 	vel_new.y = np.abs(ball_velocity.y)
-	result = pyfiglet.figlet_format("BLIP", font = "drpepper")
+	#result = pyfiglet.figlet_format("BLIP", font = "drpepper")
 	return vel_new
 def bounce_side_left(ball_velocity, left_hand_position, ball_position, paddle_size):
 	if np.abssolute(ball_position.y-left_hand_position) < (paddle_size/2):
 		vel_new.y = ball_velocity.y
 		vel_new.x = np.abs(ball_velocity.x)
-		result = pyfiglet.figlet_format("BEEP", font = "drpepper")
+		#result = pyfiglet.figlet_format("BEEP", font = "drpepper")
 		return [vel_new, False]
 	else:
 		vel_new.x = 0
 		vel_new.y = 0
-		result = pyfiglet.figlet_format("POINT FOR RIGHT", font = "drpepper")
+		#result = pyfiglet.figlet_format("POINT FOR RIGHT", font = "drpepper")
 		return [vel_new, True]
 def bounce_side_right(ball_velocity, left_hand_position, ball_position, paddle_size):
 	if np.abssolute(ball_position.y-right_hand_position) < (paddle_size/2):
 		vel_new.y = ball_velocity.y
 		vel_new.x = np.abs(ball_velocity.x)*-1
-		result = pyfiglet.figlet_format("BOOP", font = "drpepper")
+		#result = pyfiglet.figlet_format("BOOP", font = "drpepper")
 		return [vel_new, False]
 	else:
 		vel_new.x = 0
 		vel_new.y = 0
-		result = pyfiglet.figlet_format("POINT FOR LEFT", font = "drpepper")
+		#result = pyfiglet.figlet_format("POINT FOR LEFT", font = "drpepper")
 		return [vel_new, True]
 
 def bounce_the_ball(ball_velocity,last_bounce, left_hand_position, right_hand_position, ball_position, paddle_size):
@@ -188,7 +189,7 @@ def pong_logic():
 	# Create Subscribers
 	# TODO: position_subscriber = rospy.Subscriber('position_subscriber', hand_position, self.scan_callback)
 	# TODO: boundary_subscriber = rospy.Subscriber('position_subscriber', hand_position, self.scan_callback)
-	hand_position_subscriber = rospy.Subscriber('hand_position_subscriber', measured_distances, hand_position_callback)
+	#hand_position_subscriber = rospy.Subscriber('hand_position_subscriber', measured_distances, hand_position_callback)
 
 	#######################
 	# Create the message variables
@@ -248,7 +249,7 @@ def pong_logic():
 		if do_bounce == True:
 			scoreOccurred = False
 			# Do Event
-			[vel_new, score_happened] = bounce_the_ball(ball_velocity,last_bounce, left_hand_position, right_hand_position, ball_logic_position, paddle_size)
+			[vel_new, score_happened] = bounce_the_ball(ball_cmd_vel,last_bounce, left_hand_position, right_hand_position, ball_logic_position, paddle_size)
 
 			#Publish hand twist
 			vel_new_twist.linear.x=vel_new.x
@@ -268,8 +269,13 @@ def pong_logic():
 				# return hand to default position
 				# TODO: hand_position_publisher move handd to center
 
+		#Publish hand twist
+		vel_new_twist.linear.x=vel_new.x
+		vel_new_twist.linear.y=vel_new.y
+		hand_velocity_publisher.publish(vel_new_twist)
+		
 		# Display
-		disp_game(bounds, left_hand_position,right_hand_position, ball_logic_position)
+		#disp_game(bounds, left_hand_position,right_hand_position, ball_logic_position)
 
 		# If win, end game0[1]
 		if np.max(score) >= max_score:

@@ -7,12 +7,16 @@ from intera_motion_interface import (
     MotionWaypoint,
     MotionWaypointOptions
 )
-from intera_motion_msgs.msg import TrajectoryOptions
-from geometry_msgs.msg import PoseStamped
+from intera_motion_msgs.msg import (
+    TrajectoryOptions
+)
+from geometry_msgs.msg import (
+    PoseStamped,
+    Pose
+)
 import PyKDL
 from tf_conversions import posemath
 from intera_interface import Limb
-
 import modern_robotics as mr
 
 # get Slist from Jarvis description file
@@ -22,6 +26,7 @@ import sawyer_MR_description as sw
 
 # get end effector velocity from pong logic
 def move(velocity):
+    #global endpoint_Pose
     # have to switch the order of linear and angular velocities in twist
     # message so that it comes in the form needed by the modern_robotics library
     end_effector_vel = np.zeros(6)
@@ -67,17 +72,30 @@ def move(velocity):
     for i in range(len(joint_vels)):
         joint_vels_dict['right_j'+ str(i)] = joint_vels[i]
 
-
     limb.set_joint_velocities(joint_vels_dict)
+    endpoint_Pose =limb.endpoint_pose()
+    #print(endpoint_Pose)
 
+    currPose = Pose()
+    currPose.position = endpoint_Pose['position']
+    currPose.orientation = endpoint_Pose['orientation']
+
+    callback_pub = rospy.Publisher("endpoint_Pose", Pose, queue_size=10)
+    callback_pub.publish(currPose)
+
+    #return endpoint_Pose,joint_vels_dict
 
 def main():
     try:
         rospy.init_node("armcontrol")
+        #global endpoint_Pose
         # subscribe to pong velocities published by pong node
         sub = rospy.Subscriber('pongvelocity', Twist, move)
+
+        #pub = rospy.Publisher('ee_pose', Pose, queue_size=10)
+        #pub.publish(endpoint_Pose)
         rospy.spin()
-    except ROSInterruptException:
+    except rospy.ROSInterruptException:
         rospy.logerr('Could not perform the requested motion.')
 
 if __name__=="__main__":
