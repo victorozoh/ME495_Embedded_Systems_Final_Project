@@ -9,8 +9,10 @@ import 	numpy as np
 #import 	pyfiglet
 from 	geometry_msgs.msg import Twist
 
+from pong_plot import *
+
 # Messages
-#from sawyer_pong.msg import measured_distances
+from sawyer_pong.msg import measured_distances
 
 #######################################
 # Create Classes
@@ -34,6 +36,12 @@ expected_position=xy_vector(0,0)
 combined=xy_vector(0,0)
 vel_new=xy_vector(0,0)
 
+y_high = 0.6
+y_low = 0.1
+x_high = 0.5
+x_low = -0.5
+
+plot_size = xy_vector(50,25)
 
 #######################################
 # Helper Functions
@@ -90,7 +98,7 @@ def combine_ball_positions(simulated, actual):
 ####
 def check_bounds(position, bound, last_bounce):
 	# Init for later logic
-	new_bounce = last_bounce
+	new_bounce = last_bounceprint("hi")
 
 	# Check for collisions
 	if position.x > bound.xhigh:
@@ -161,7 +169,9 @@ def bounce_the_ball(ball_velocity,last_bounce, left_hand_position, right_hand_po
 def hand_position_callback(latest_msg):
 	hand_positions[0] = latest_msg.left_distance
 	hand_positions[1] = latest_msg.right_distance
-	return 1
+
+
+
 
 #########################################
 # Primary functionexit
@@ -172,12 +182,12 @@ def pong_logic():
 	#######################ball_velocity *
 	# Get parameters
 	# TODO english_amount     = rospy.get_param('~english_amount',0)
-	paddle_size        = rospy.get_param('~paddle_size',200)
+	paddle_size        = rospy.get_param('~paddle_size',.1)
 	# TODO ball_velocity_incr = rospy.get_param('~ball_velocity_incr',1)
-	ball_speed      = rospy.get_param('~ball_velocity',10)
+	ball_speed      = rospy.get_param('~ball_velocity',.05)
 	max_score          = rospy.get_param('~max_score',1)
 
-	circle_tick_rate = rospy.get_param('~circle_tick_rate', 50)
+	circle_tick_rate = rospy.get_param('~circle_tick_rate', 10)
 
 	#######################
 	# Create Publishers
@@ -189,13 +199,14 @@ def pong_logic():
 	# Create Subscribers
 	# TODO: position_subscriber = rospy.Subscriber('position_subscriber', hand_position, self.scan_callback)
 	# TODO: boundary_subscriber = rospy.Subscriber('position_subscriber', hand_position, self.scan_callback)
-	#hand_position_subscriber = rospy.Subscriber('hand_position_subscriber', measured_distances, hand_position_callback)
+	hand_position_subscriber = rospy.Subscriber('hand_positions', measured_distances, hand_position_callback)
 
 	#######################
 	# Create the message variables
 	# TODO: Message_twist
 	# TODO: Message_position
-	vel_new_twist=Twist()
+
+	#vel_new_twist=Twist()bounds, plot_size, left_paddle_position, right_paddle_position, paddle_size, ball_position
 
 
 	#######################
@@ -214,9 +225,10 @@ def pong_logic():
 	now_time = start_time
 
 	# TEMP. DELETE ME
-	ball_logic_position = xy_vector(50,50)             #get from sub
+	bounds = bound_lrud(x_low,x_high,y_high,y_low)          # get from Subscriber (or param or paramserver or sub, based on ambition)
+	ball_logic_position = xy_vector(0,(bounds.yhigh+bounds.ylow)/2.0)           #get from sub
 	#TODO: Put hand at default Position
-	bounds = bound_lrud(0,100,100,0)          # get from Subscriber (or param or paramserver or sub, based on ambition)
+
 
 	#######################
 	# Main Loop
@@ -231,7 +243,7 @@ def pong_logic():
 		now_time    = rospy.get_time() - start_time
 		delta_time  = now_time - last_time
 
-		# Get Position of robot arm
+		#		print(left_hand_position) Get Position of robot arm
 		# TODO: position_subscriber.get
 		# TODO: robo_position = transform_position()
 
@@ -240,9 +252,12 @@ def pong_logic():
 		ball_logic_position = combine_ball_positions(ball_expected_position(ball_logic_position, ball_cmd_vel, delta_time), ball_recieved_position)
 
 		# Get Hand Positions
-		left_hand_position  = hand_positions[0]
-		right_hand_position = hand_positions[1]
+		left_hand_position  = hand_positions[0]/1000.0
+		right_hand_position = hand_positions[1]/1000.0
 
+		print(right_hand_position, left_hand_position)
+
+		"""
 		# Check Bounds
 		[do_bounce,last_bounce] = check_bounds(ball_logic_position, bounds, last_bounce)
 		# Event?
@@ -273,9 +288,9 @@ def pong_logic():
 		vel_new_twist.linear.x=vel_new.x
 		vel_new_twist.linear.y=vel_new.y
 		hand_velocity_publisher.publish(vel_new_twist)
-		
+		"""
 		# Display
-		#disp_game(bounds, left_hand_position,right_hand_position, ball_logic_position)
+		pong_plot(bounds, plot_size, left_hand_position, right_hand_position, paddle_size, ball_logic_position)
 
 		# If win, end game0[1]
 		if np.max(score) >= max_score:
