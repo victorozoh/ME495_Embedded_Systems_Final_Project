@@ -36,6 +36,7 @@ expected_position=xy_vector(0,0)
 combined=xy_vector(0,0)
 vel_new=xy_vector(0,0)
 
+
 y_high = 0.6
 y_low = 0.1
 x_high = 0.5
@@ -56,13 +57,6 @@ def disp_win(score):
 	else:
 		pyfiglet.figlet_format('RIGHT PLAYER WINS')
 '''
-def disp_game(bounds, left_hand_position,right_hand_position, ball_logic_position, paddle_size):
-	arenaDim = xy_vector(50,20)
-	print('--------------------------------------------------')
-	lh_ratio = left_hand_position/(bounds.yhigh - bounds.ylow)
-	rh_ratio = right_hand_position/(bounds.yhigh - bounds.ylow)
-	ballPos = xy_vector(ball_logic_position.x/(bounds.xhigh - bounds.xlow),ball_logic_position.y/(bounds.yhigh - bounds.ylow))
-	ps_ratio = paddle_size / (bounds.yhigh - bounds.ylow)
 
 ####
 def rand_sign():
@@ -182,7 +176,7 @@ def pong_logic():
 	#######################ball_velocity *
 	# Get parameters
 	# TODO english_amount     = rospy.get_param('~english_amount',0)
-	paddle_size        = rospy.get_param('~paddle_size',.1)
+	paddle_size        = rospy.get_param('~paddle_size',.2)
 	# TODO ball_velocity_incr = rospy.get_param('~ball_velocity_incr',1)
 	ball_speed      = rospy.get_param('~ball_velocity',.05)
 	max_score          = rospy.get_param('~max_score',1)
@@ -207,7 +201,6 @@ def pong_logic():
 	# TODO: Message_position
 
 	#vel_new_twist=Twist()bounds, plot_size, left_paddle_position, right_paddle_position, paddle_size, ball_position
-
 
 	#######################
 	# Create start variables

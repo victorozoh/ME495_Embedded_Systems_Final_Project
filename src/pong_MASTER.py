@@ -40,20 +40,20 @@ expected_position=xy_vector(0,0)
 combined=xy_vector(0,0)
 vel_new=xy_vector(0,0)
 ball_measured_position = xy_vector(0,0)
-
+plot_size = xy_vector(50,25)
 #######################################
 # Helper Functions
-'''
+
 def disp_score(score):
 	pyfiglet.figlet_format('SCORE', font = "drpepper")
-	pyfiglet.figlet_format(sprint('%d to %d',score[0],score[1]), font = "drpepper")
+	print(score[0]," to ",score[1])
 	return 1
 def disp_win(score):
 	if score[0] > score[1]:
 		pyfiglet.figlet('LEFT PLAYER WINS')
 	else:
 		pyfiglet.figlet_format('RIGHT PLAYER WINS')
-'''
+
 def disp_game(bounds, left_hand_position,right_hand_position, ball_logic_position, paddle_size):
 	arenaDim = xy_vector(50,20)
 	print('--------------------------------------------------')
@@ -114,60 +114,13 @@ def check_bounds(position, bound, last_bounce):
 		do_bounce = False
 
 	return [do_bounce, new_bounce]
-####
-def bounce_top(ball_velocity): # THIS takes in xy_vector(xx,yy)
-	vel_new.x = ball_velocity.x
-	vel_new.y = -1* np.abs(ball_velocity.y)
-	#result = pyfiglet.figlet_format("BONK", font = "drpepper")
-	return vel_new
-def bounce_bottom(ball_velocity): # THIS takes in xy_vector(xx,yy)
-	vel_new.x = ball_velocity.x
-	vel_new.y = np.abs(ball_velocity.y)
-	#result = pyfiglet.figlet_format("BLIP", font = "drpepper")
-	return vel_new
-def bounce_side_left(ball_velocity, left_hand_position, ball_position, paddle_size):
-	if np.abssolute(ball_position.y-left_hand_position) < (paddle_size/2):
-		vel_new.y = ball_velocity.y
-		vel_new.x = np.abs(ball_velocity.x)
-		#result = pyfiglet.figlet_format("BEEP", font = "drpepper")
-		return [vel_new, False]
-	else:
-		vel_new.x = 0
-		vel_new.y = 0
-		#result = pyfiglet.figlet_format("POINT FOR RIGHT", font = "drpepper")
-		return [vel_new, True]
-def bounce_side_right(ball_velocity, left_hand_position, ball_position, paddle_size):
-	if np.abssolute(ball_position.y-right_hand_position) < (paddle_size/2):
-		vel_new.y = ball_velocity.y
-		vel_new.x = np.abs(ball_velocity.x)*-1
-		#result = pyfiglet.figlet_format("BOOP", font = "drpepper")
-		return [vel_new, False]
-	else:
-		vel_new.x = 0
-		vel_new.y = 0
-		#result = pyfiglet.figlet_format("POINT FOR LEFT", font = "drpepper")
-		return [vel_new, True]
-
-def bounce_the_ball(ball_velocity,last_bounce, left_hand_position, right_hand_position, ball_position, paddle_size):
-	score_happened = False
-	# Do the bounces
-	if last_bounce == 'lf':
-		[vel_new, score_happened] = bounce_side_left(ball_velocity, left_hand_position, ball_position, paddle_size)
-	if last_bounce == 'rt':
-		[vel_new, score_happened] = bounce_side_right(ball_velocity, right_hand_position, ball_position, paddle_size)
-	if last_bounce == 'up':
-		vel_new = bounce_top(ball_velocity)
-	if last_bounce == 'dn':
-		vel_new = bounce_bottom(ball_velocity)
-		ball_velocity,
-	return [vel_new, score_happened]
 
 #######################################
 # Callbacks
 def hand_position_callback(latest_msg):
 	hand_positions[0] = latest_msg.left_distance
 	hand_positions[1] = latest_msg.right_distance
-	return 1
+
 
 def checkPosition(posemsg):
 	ball_measured_position.x = posemsg.position.x
@@ -193,21 +146,21 @@ def pong_logic():
 	# TODO english_amount     = rospy.get_param('~english_amount',0)
 	paddle_size        = rospy.get_param('~paddle_size',0.2)
 	# TODO ball_velocity_incr = rospy.get_param('~ball_velocity_incr',1)
-	ball_speed      = rospy.get_param('~ball_velocity',0.05)
+	ball_speed      = rospy.get_param('~ball_velocity',0.1)
 	max_score          = rospy.get_param('~max_score',5)
 
-	circle_tick_rate = rospy.get_param('~circle_tick_rate', 10)
+	circle_tick_rate = rospy.get_param('~circle_tick_rate', 150)
 
 	#######################
 	# Create Publishers
-	hand_velocity_publisher = rospy.Publisher('hand_vel', Twist, queue_size=1)
+	hand_velocity_publisher = rospy.Publisher('pongvelocity', Twist, queue_size=1)
 
 	#######################
 	# Create Subscribers
 	# position subscriber:
 	poscheck = rospy.Subscriber("endpoint_Pose", Pose, checkPosition, queue_size=1)
 	# hand position subscriber:
-	hand_position_subscriber = rospy.Subscriber('hand_position_subscriber', measured_distances, hand_position_callback)
+	hand_position_subscriber = rospy.Subscriber('hand_positions', measured_distances, hand_position_callback,queue_size=1)
 
 	#######################
 	# Create the message variables
@@ -219,8 +172,12 @@ def pong_logic():
 	# Create start variables
 	score           = [0,0]
 	ball_cmd_vel    = get_ball_start_velocity(ball_speed)
-	left_hand_position  = hand_positions[0]
-	right_hand_position = hand_positions[1]
+
+	veltwist.linear.x=ball_cmd_vel.x
+	veltwist.linear.z=ball_cmd_vel.y
+
+	left_hand_position  = hand_positions[0]/1000.0
+	right_hand_position = hand_positions[1]/1000.0
 
 	last_bounce = 0
 
@@ -233,7 +190,7 @@ def pong_logic():
 	# TEMP. DELETE ME
 	ball_logic_position = ball_measured_position           #get from sub #!!!!!!!!!!!!!!
 	#TODO: Put hand at default Position
-	bounds = bound_lrud(-0.275,0.42,0.24,0.44)          # get from Subscriber (or param or paramserver or sub, based on ambition)
+	bounds = bound_lrud(-0.275,0.42,0.44,0.14)          # get from Subscriber (or param or paramserver or sub, based on ambition)
 
 	#######################
 	# Main Loop
@@ -248,39 +205,74 @@ def pong_logic():
 		ball_logic_position = ball_measured_position#combine_ball_positions(ball_expected_position(ball_logic_position, ball_cmd_vel, delta_time), ball_recieved_position)
 
 		# Get Hand Positions
-		left_hand_position  = hand_positions[0]
-		right_hand_position = hand_positions[1]
+		left_hand_position  = hand_positions[0]/1000.0
+		right_hand_position = hand_positions[1]/1000.0
+
+		# Display
+		print(ball_measured_position.y, left_hand_position)
+		###print(right_hand_position, left_hand_position)
+		pong_plot(bounds, plot_size, left_hand_position, right_hand_position, paddle_size, ball_logic_position)
 
 		# Check Bounds
 		[do_bounce,last_bounce] = check_bounds(ball_logic_position, bounds, last_bounce)
 		# Event?
 		if do_bounce == True:
-			scoreOccurred = False
-			# Do Event
-			[vel_new, score_happened] = bounce_the_ball(ball_cmd_vel,last_bounce, left_hand_position, right_hand_position, ball_logic_position, paddle_size)
+			score_happened = False
+			if last_bounce == 'lf':
+				veltwist.linear.x = np.abs(veltwist.linear.x)
+				"""print("\n")
+				print(np.abs(ball_measured_position.y-bounds.ylow-left_hand_position), paddle_size/2)
+				exit()"""
+				if np.abs(ball_measured_position.y-bounds.ylow-left_hand_position) > (paddle_size/2):
+					score_happened = True
+					print('miss:' + str(score_happened))
+				if np.abs(ball_measured_position.y-bounds.ylow-left_hand_position) <= (paddle_size/2):
+					score_happened = False
+					print('recovery:' + str(score_happened))
+			elif last_bounce == 'rt':
+				veltwist.linear.x = -np.abs(veltwist.linear.x)
+				"""print("\n")
+				print(np.abs(ball_measured_position.y-bounds.ylow-right_hand_position), paddle_size/2)
+				exit()"""
+				if np.abs(ball_measured_position.y-bounds.ylow-right_hand_position) > (paddle_size/2):
+					score_happened = True
+					print('miss:' + str(score_happened))
+				if np.abs(ball_measured_position.y-bounds.ylow-right_hand_position) <= (paddle_size/2):
+					score_happened = False
+					print('recovery:' + str(score_happened))
+			if last_bounce == 'dn':
+				veltwist.linear.z = np.abs(veltwist.linear.z)
+			elif last_bounce == 'up':
+				veltwist.linear.z = -np.abs(veltwist.linear.z)
 
 			# Score?
 			if score_happened == True:
+
 				# Incr score, return hand
 				if last_bounce == 'lf':
 					score[0] = score[0] + 1
 				if last_bounce == 'rt':
 					score[1] = score[1] + 1
 
-				disp_score()
+				veltwist.linear.x=0
+				veltwist.linear.z=0
+				hand_velocity_publisher.publish(veltwist)
+
+				disp_score(score)
 				last_bounce = 0
 				# return hand to default position
 				hif.move_to_home(thetalistHOME)
-				# TODO: reroll initial velocity
+				ball_cmd_vel    = get_ball_start_velocity(ball_speed)
+
+				veltwist.linear.x=ball_cmd_vel.x
+				veltwist.linear.z=ball_cmd_vel.y
 				# TODO: increase speed
 
 		#Publish hand twist
-		veltwist.linear.x=vel_new.x
-		veltwist.linear.z=vel_new.y
+		#veltwist.linear.x=vel_new.x
+		#veltwist.linear.z=vel_new.y
 		hand_velocity_publisher.publish(veltwist)
 
-		# Display
-		pong_plot(bounds, plot_size, left_hand_position, right_hand_position, paddle_size, ball_logic_position)
 
 		# If win, end game0[1]
 		if np.max(score) >= max_score:

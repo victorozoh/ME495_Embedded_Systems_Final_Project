@@ -11,6 +11,7 @@ import numpy as np
 
 #######################################
 # Global Variables
+paddle_size_display_scale = 0.7
 
 #######################################
 # Helper Functions
@@ -29,13 +30,13 @@ def draw_paddle(row, bounds, plot_size, paddle_position, paddle_size):
     vertical_pos = plot_size.y - row
     vert_domain = bounds.yhigh - bounds.ylow
 
-    paddle_upper = (paddle_position + (0.5 * paddle_size))*(plot_size.y/vert_domain)
-    paddle_lower = (paddle_position - (0.5 * paddle_size))*(plot_size.y/vert_domain)
+    paddle_upper = (paddle_position + (paddle_size_display_scale*0.5 * paddle_size))*(plot_size.y/vert_domain)
+    paddle_lower = (paddle_position - (paddle_size_display_scale*0.5 * paddle_size))*(plot_size.y/vert_domain)
 
     if (vertical_pos <= paddle_upper)and(vertical_pos >= paddle_lower):
         cprint('8')
     else:
-        cprint(' ')
+        cprint('-')
 
     return
 
@@ -54,13 +55,13 @@ def draw_game_line(row, bounds, plot_size, ball_position):
 
     # Check if ball on this row
     if np.abs(ball_vert-vertical_pos) <= ballsize:
-        for col in range(plot_size.x-2):
+        for col in range(plot_size.x):
             if np.abs(ball_horiz-col) <= (ballsize):
                 cprint("0")
             else:
                 cprint(" ")
     else:
-        for col in range(plot_size.x-2):
+        for col in range(plot_size.x):
             cprint(" ")
 
     return
