@@ -80,7 +80,7 @@ def move(velocity):
     currPose.position = endpoint_Pose['position']
     currPose.orientation = endpoint_Pose['orientation']
 
-    callback_pub = rospy.Publisher("endpoint_Pose", Pose, queue_size=10)
+    callback_pub = rospy.Publisher("endpoint_Pose", Pose, queue_size=1)
     callback_pub.publish(currPose)
 
     #return endpoint_Pose,joint_vels_dict
@@ -90,7 +90,7 @@ def main():
         rospy.init_node("armcontrol")
         #global endpoint_Pose
         # subscribe to pong velocities published by pong node
-        sub = rospy.Subscriber('pongvelocity', Twist, move)
+        sub = rospy.Subscriber('pongvelocity', Twist, move, queue_size=1)
 
         #pub = rospy.Publisher('ee_pose', Pose, queue_size=10)
         #pub.publish(endpoint_Pose)
