@@ -76,9 +76,9 @@ def checkPosition(posemsg):
     #print('this is x pose:' + str(posemsg.position.x))
     #print('this is z pose:' + str(posemsg.position.z))
 
-    if posemsg.position.x >= 0.3:
+    if posemsg.position.x >= 0.425:
         oob_x = 1
-    if posemsg.position.x <= -0.1:
+    if posemsg.position.x <= -0.275: #-0.335:
         oob_x = 2
         #print("Reflection")
     if posemsg.position.z >= 0.44:
@@ -96,8 +96,8 @@ def main():
 
     vel = Twist()
     vel.linear.y = 0.0
-    vel.linear.x = 0.0
-    vel.linear.z = 0.05
+    vel.linear.x = 0.075#0.0
+    vel.linear.z = 0.030#0.0
     vel.angular.x = 0.0
     vel.angular.y = 0.0
     vel.angular.z = 0.0
@@ -110,7 +110,7 @@ def main():
         move_to_home(thetalistHOME)
         velpub = rospy.Publisher("pongvelocity", Twist, queue_size=1)
         # specify rate
-        rate = rospy.Rate(20)
+        rate = rospy.Rate(100)
 
 
         # publishTwist(velpub,vel,oob_x,oob_z)
