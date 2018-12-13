@@ -4,6 +4,7 @@ from geometry_msgs.msg import (
     Pose
     )
 from intera_interface import Limb
+import rospy
 
 def move_to_home(thetalist):
     rightlimb = Limb()
@@ -17,6 +18,7 @@ def move_to_home(thetalist):
     waypoints['right_j6'] = thetalist[6]
     waypoints['torso_t0'] = thetalist[7]
     rightlimb.move_to_joint_positions(waypoints, timeout = 20.0, threshold = 0.05)
+    rospy.sleep(2.0)
 
 def publishTwist(publisher, veltwist, boundxhit=0, boundzhit=0):
 

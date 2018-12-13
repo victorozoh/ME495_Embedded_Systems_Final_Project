@@ -19,14 +19,26 @@ def main():
     try:
         rospy.init_node("getconfig")
         limb = Limb()
-        endpoint_pose =limb.endpoint_pose()
-        # get current pose
-        print("The current end effector pose is {}".format(endpoint_pose))
-        # get all current joint angles
-        # print(limb.joint_angles())
-        # print(type(limb.joint_angles()))
-        
-    except ROSInterruptException:
+        joint_vels_dict = {}
+        for i in range(7):
+            joint_vels_dict['right_j'+ str(i)] = 0.01
+        print joint_vels_dict
+
+
+        for j in range(1000):
+
+
+
+            limb.set_joint_velocities(joint_vels_dict)
+            endpoint_pose = limb.endpoint_pose()
+            # get current pose
+            #print("The current end effector pose is {}".format(endpoint_pose))
+            # get all current joint angles
+            # print(limb.joint_angles())
+            # print(type(limb.joint_angles()))
+            rospy.sleep(0.01)
+
+    except rospy.ROSInterruptException:
         rospy.logerr('Could not get the requested info.')
 
 if __name__=="__main__":

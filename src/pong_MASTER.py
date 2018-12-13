@@ -262,6 +262,7 @@ def pong_logic():
 				last_bounce = 0
 				# return hand to default position
 				hif.move_to_home(thetalistHOME)
+                
 				ball_cmd_vel    = get_ball_start_velocity(ball_speed)
 
 				veltwist.linear.x=ball_cmd_vel.x

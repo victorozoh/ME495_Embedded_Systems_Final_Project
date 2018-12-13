@@ -40,6 +40,7 @@ def move(velocity):
     end_effector_vel[5] = velocity.linear.z
     # we'll treat the velocity vector as a twist 6x1
     # 1. Compute the Jacobian. Get the Blist and thetalist
+    limb = Limb()
     # limb.joint_angles() returns a dictionary
     thetadict = limb.joint_angles()
     print("made it into move")
@@ -92,7 +93,6 @@ def main():
         rospy.init_node("armcontrol")
         callback_pub = rospy.Publisher("endpoint_Pose", Pose, queue_size=1)
         limb = Limb()
-
         #global endpoint_Pose
         # subscribe to pong velocities published by pong node
         sub = rospy.Subscriber('pongvelocity', Twist, move, queue_size=1)
