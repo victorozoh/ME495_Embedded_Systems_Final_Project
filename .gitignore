@@ -9,3 +9,7 @@ Arduino/SenseDistance/.vs/slnx.sqlite
 Arduino/SenseDistance/.vs/VSWorkspaceState.json
 Arduino/SenseDistance/CppProperties.json
 *.pyc
+.vs/ProjectSettings.json
+.vs/ProjectSettings.json
+.vs/slnx.sqlite
+.vs/ME495_Embedded_Systems_Final_Project/v15/.suo
