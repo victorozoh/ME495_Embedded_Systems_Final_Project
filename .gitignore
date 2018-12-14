@@ -1,4 +1,5 @@
 
+
 Arduino/SenseDistance/.vs/__vm/.vsarduino.h
 Arduino/SenseDistance/.vs/__vm/Compile.vmps.xml
 Arduino/SenseDistance/.vs/__vm/Configuration.Release.vmps.xml
@@ -7,3 +8,4 @@ Arduino/SenseDistance/.vs/SenseDistance/v15/.suo
 Arduino/SenseDistance/.vs/slnx.sqlite
 Arduino/SenseDistance/.vs/VSWorkspaceState.json
 Arduino/SenseDistance/CppProperties.json
+*.pyc
