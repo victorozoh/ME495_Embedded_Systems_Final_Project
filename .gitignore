@@ -9,13 +9,9 @@ Arduino/SenseDistance/.vs/slnx.sqlite
 Arduino/SenseDistance/.vs/VSWorkspaceState.json
 Arduino/SenseDistance/CppProperties.json
 *.pyc
-<<<<<<< HEAD
-
-demoEdit.avi
-=======
 .vs/ProjectSettings.json
 .vs/ProjectSettings.json
 .vs/slnx.sqlite
 .vs/ME495_Embedded_Systems_Final_Project/v15/.suo
 .vs/ME495_Embedded_Systems_Final_Project/v15/.suo
->>>>>>> b99b87f266d8c5d67ef1d087d75792ec19af86fa
+demoEdit.avi
