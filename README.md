@@ -9,7 +9,6 @@
 
 The purpose of this project was to develop an interactive game of Pong on Sawyer. This system includes ultrasonic distance sensors which detect the location of the two pong paddles (the users' hands). These locations are translated to our 'game coordinates' and subsequently implemented in our game logic to determine the trajectory of the ball. The ball, the rectangular game area, and the ball's trajectory are represented in Sawyer's world coordinate frame, and the arm will trace out these trajectories in response to the gameplay.
 
-### Video Demo:
 [Link to demo video](https://youtu.be/s9HeBjx-4tQ)
 
 ### Arm Control
@@ -76,11 +75,24 @@ Description: [sense_hands.py](https://github.com/victorozoh/ME495_Embedded_Syste
 Monitors:
 * The first active serial port: The node scans through available serial data streams and selects the first one it sees (this has the opportunity to cause issues for systems with more serial connections, but our laptops only ever had one serial device plugged in).
 This serial port is assumed to have a baud rate of 115200, and take the form of "leftHandPosition,rightHandPosition\r\n".
-Try and except blocks are used to ensure any issues with the serial port or recieved data do not crash the node.
+
 
 Publishes to:
-* `/hand_positions` : this topic message takes the form of a [`sawyer_pong.msg/measured_distances`](https://github.com/victorozoh/ME495_Embedded_Systems_Final_Project/blob/master/msg/measured_distances.msg) message, which is a custom message written for this project.
+* `\hand_positions` : this topic message takes the form of a [`sawyer_pong.msg/measured_distances`](https://github.com/victorozoh/ME495_Embedded_Systems_Final_Project/blob/master/msg/measured_distances.msg) message, which is a custom message written for this project.
 This message takes the form of two int32s: left_distance and right_distance.
+
+This node begins by scanning through available serial ports and generating an array of these serial ports. 
+The node then chooses the 0th member of this array and opens that serial port with a baud rate of 115200.
+This, of course, can cause issues for systems with multiple serial devices plugged in, but we did not encounter this issue with our setup. 
+Future work could easily implement a system for circumventing this issue by asking the user which of the active serial ports should be used.
+
+The node then enters the main loop.
+First, the node tries to read the latest available data into variable `data_in`.
+A try/except block is used to prevent issues with the serial port from crashing the node.
+
+Next, the node processes the incoming data by splitting the incoming stream into two integer values. 
+These numerical representations of the measurements are then adjusted by some calibration amount (in our case, we simply multiply the numbers by one, since the sensing appeared to be accurate)
+These adjusted values are then loaded into the `measured_distances` message, and published on the topic `\hand_positions`
 
 ### How to run:
 
@@ -90,5 +102,3 @@ From the Sawyer workspace containing this package, run:
 `roslaunch sawyer_pong pongTest.launch`
 
 Configurable parameters can be edited in the launch file.
-
-
