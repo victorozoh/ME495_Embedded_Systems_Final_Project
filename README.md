@@ -55,6 +55,10 @@ Support functions for resetting the hand to the default serving position are inc
 
 ##### sense_hands node
 
+
+Publishes to:
+* `\hand_positions` : see above.
+
 ### How to run:
 
 We consolidated our nodes into [pongTest.launch](\launch\pongTest.launch).
