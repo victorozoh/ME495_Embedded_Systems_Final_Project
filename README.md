@@ -49,15 +49,37 @@ The GUI is illustrated by using the pyfiglet Python module, with relevant classe
 
 Support functions for resetting the hand to the default serving position are included in [hand_interface.py](\src\hand_interface.py).
 
-### Hand Sensors
+### (Player) Hand Sensors
+
+Sensing the location of the players' hands makes use of two main files: the Arduino portion (senseDistance.ino) and the ROS portion (sense_hands node)
 
 ##### senseDistance.ino
 
+Description: [senseDistance.ino](https://github.com/victorozoh/ME495_Embedded_Systems_Final_Project/blob/master/Arduino/SenseDistance/senseDistance.ino) is an Arduino sketch responsible for sensing the positions of the player's hands using two [hcsr04](https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf) distance sensors. 
+These sensors use sonar in order to achieve these measurements. 
+The sketch applies a simple time-averaging filter to smooth out measurement noise .
+
+The code relies on an existing Arduino library containing a [.h](https://github.com/victorozoh/ME495_Embedded_Systems_Final_Project/blob/master/Arduino/SenseDistance/hcsr04.h) file and a [.cpp](https://github.com/victorozoh/ME495_Embedded_Systems_Final_Project/blob/master/Arduino/SenseDistance/hcsr04.cpp) file.
+This library was created by gitHub user  [jeremylindsayni](https://github.com/jeremylindsayni/Bifrost.Arduino.Sensors.HCSR04).
+The only portion of this code that we modified was the echo listening portion, in order to allow for time-out exceptions to occur. 
+In the event that a time-out exception occurs, the sketch will illuminate a red LED to indicate to the player that it has lost track of their hand position. 
+In this case, the previous position is re-used.
+
+The sketch then reports this data over a serial communication port using a buad rate of 115200.
+This measurement - report process occurrs indefinately.
+
 ##### sense_hands node
 
+Description: [sense_hands.py](https://github.com/victorozoh/ME495_Embedded_Systems_Final_Project/blob/master/src/sense_hands.py) is responsible for recieving the serial communications from the Arduino, interpreting that data, and finally publishing that data for use in other ROS nodes
+
+Monitors:
+* The first active serial port: The node scans through available serial data streams and selects the first one it sees (this has the opportunity to cause issues for systems with more serial connections, but our laptops only ever had one serial device plugged in).
+This serial port is assumed to have a baud rate of 115200, and take the form of "leftHandPosition,rightHandPosition\r\n".
+Try and except blocks are used to ensure any issues with the serial port or recieved data do not crash the node.
 
 Publishes to:
-* `\hand_positions` : see above.
+* `/hand_positions` : this topic message takes the form of a [`sawyer_pong.msg/measured_distances`](https://github.com/victorozoh/ME495_Embedded_Systems_Final_Project/blob/master/msg/measured_distances.msg) message, which is a custom message written for this project.
+This message takes the form of two int32s: left_distance and right_distance.
 
 ### How to run:
 
