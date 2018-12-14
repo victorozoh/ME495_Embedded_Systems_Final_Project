@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #######################################
-# Author: Petras Swissler
+# Authors: Petras Swissler,Andrew Thompson,Victor Ozoh,Evan Li,Ethan Park
 # Created: Dec 11, 2018
 #######################################
 # Import Required Libraries
@@ -49,13 +49,10 @@ def disp_score(score):
 	print(score[0]," to ",score[1])
 	return 1
 
-
 def disp_win(score):
 	if score[0] > score[1]:
-        #print(" LEFT PLAYER WINS ")
 		pyfiglet.figlet('LEFT PLAYER WINS')
 	else:
-        #print(" RIGHT PLAYER WINS ")
 		pyfiglet.figlet_format('RIGHT PLAYER WINS')
 
 def disp_game(bounds, left_hand_position,right_hand_position, ball_logic_position, paddle_size):
@@ -66,14 +63,13 @@ def disp_game(bounds, left_hand_position,right_hand_position, ball_logic_positio
 	ballPos = xy_vector(ball_logic_position.x/(bounds.xhigh - bounds.xlow),ball_logic_position.y/(bounds.yhigh - bounds.ylow))
 	ps_ratio = paddle_size / (bounds.yhigh - bounds.ylow)
 
-####
 def rand_sign():
 	choose = np.random.rand()
 	if choose >= 0.5:
 		return 1
 	else:
 		return -1
-##
+
 def get_ball_start_velocity(ball_speed):
 	xx = (np.random.rand()*0.8 + 0.2)*rand_sign()
 	yy = (np.random.rand()*0.4 + 0.0)*rand_sign()
@@ -84,20 +80,18 @@ def get_ball_start_velocity(ball_speed):
 
 	start_vel = xy_vector(xx,yy)
 	return start_vel
-####
+
 def ball_expected_position(ball_logic_position, ball_cmd_vel, delta_time):
-
-
 	expected_position.x = ball_logic_position.x + ball_cmd_vel.x * delta_time
 	expected_position.y = ball_logic_position.y + ball_cmd_vel.y * delta_time
 	return expected_position
-####
+
 def combine_ball_positions(simulated, actual):
 	simweight = 0.8
 	combined.x = simulated.x*simweight + actual.x*(1-simweight)
 	combined.y = simulated.y*simweight + actual.y*(1-simweight)
 	return combined
-####
+
 def check_bounds(position, bound, last_bounce):
 	# Init for later logic
 	new_bounce = last_bounce
@@ -125,11 +119,9 @@ def hand_position_callback(latest_msg):
 	hand_positions[0] = latest_msg.left_distance
 	hand_positions[1] = latest_msg.right_distance
 
-
 def checkPosition(posemsg):
 	ball_measured_position.x = posemsg.position.x
 	ball_measured_position.y = posemsg.position.z
-
 
 #########################################
 # Primary functionexit
@@ -137,19 +129,13 @@ def pong_logic():
 	#Initialize the _node
 	rospy.init_node('pong_Master')
 
-
-
 	# define initial joint positions
 	thetalistHOME = [1.3395771484375, -3.5355, 2.0365224609375, -1.489580078125, -0.4218515625, 1.1975029296875, -3.419748046875, 0.0]
 	hif.move_to_home(thetalistHOME)
 
-
-
 	#######################
 	# Get parameters
-	# TODO english_amount     = rospy.get_param('~english_amount',0)
 	paddle_size        = rospy.get_param('~paddle_size',0.2)
-	# TODO ball_velocity_incr = rospy.get_param('~ball_velocity_incr',1)
 	ball_speed      = rospy.get_param('~ball_velocity',0.1)
 	max_score          = rospy.get_param('~max_score',5)
 
@@ -168,9 +154,7 @@ def pong_logic():
 
 	#######################
 	# Create the message variables
-
 	veltwist=Twist()
-
 
 	#######################
 	# Create start variables
@@ -191,9 +175,8 @@ def pong_logic():
 	start_time = rospy.get_time()
 	now_time = start_time
 
-	# TEMP. DELETE ME
 	ball_logic_position = ball_measured_position           #get from sub #!!!!!!!!!!!!!!
-	#TODO: Put hand at default Position
+
 	bounds = bound_lrud(-0.275,0.42,0.44,0.14)          # get from Subscriber (or param or paramserver or sub, based on ambition)
 
 	#######################
@@ -214,7 +197,6 @@ def pong_logic():
 
 		# Display
 		print(ball_measured_position.y, left_hand_position)
-		###print(right_hand_position, left_hand_position)
 		pong_plot(bounds, plot_size, left_hand_position, right_hand_position, paddle_size, ball_logic_position)
 
 		# Check Bounds
@@ -224,9 +206,6 @@ def pong_logic():
 			score_happened = False
 			if last_bounce == 'lf':
 				veltwist.linear.x = np.abs(veltwist.linear.x)
-				"""print("\n")
-				print(np.abs(ball_measured_position.y-bounds.ylow-left_hand_position), paddle_size/2)
-				exit()"""
 				if np.abs(ball_measured_position.y-bounds.ylow-left_hand_position) > (paddle_size/2):
 					score_happened = True
 					print('miss:' + str(score_happened))
@@ -235,9 +214,6 @@ def pong_logic():
 					print('recovery:' + str(score_happened))
 			elif last_bounce == 'rt':
 				veltwist.linear.x = -np.abs(veltwist.linear.x)
-				"""print("\n")
-				print(np.abs(ball_measured_position.y-bounds.ylow-right_hand_position), paddle_size/2)
-				exit()"""
 				if np.abs(ball_measured_position.y-bounds.ylow-right_hand_position) > (paddle_size/2):
 					score_happened = True
 					print('miss:' + str(score_happened))
@@ -271,13 +247,9 @@ def pong_logic():
 
 				veltwist.linear.x=ball_cmd_vel.x
 				veltwist.linear.z=ball_cmd_vel.y
-				# TODO: increase speed
 
 		#Publish hand twist
-		#veltwist.linear.x=vel_new.x
-		#veltwist.linear.z=vel_new.y
 		hand_velocity_publisher.publish(veltwist)
-
 
 		# If win, end game0[1]
 		if np.max(score) >= max_score:
@@ -291,7 +263,6 @@ def pong_logic():
 # Boilerplate Code
 if __name__ == '__main__':
 	try:
-
 		pong_logic()
 	except rospy.ROSInterruptException:
 		pass
