@@ -89,3 +89,6 @@ From the Sawyer workspace containing this package, run:
 `roslaunch sawyer_pong pongTest.launch`
 
 Configurable parameters can be edited in the launch file.
+
+### Video Demo:
+https://drive.google.com/file/d/1s3wx5P8GX7cLwMPniy2SaOlxIW4JAoGG/view?usp=sharing
