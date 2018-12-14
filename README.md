@@ -9,6 +9,7 @@
 
 The purpose of this project was to develop an interactive game of Pong on Sawyer. This system includes ultrasonic distance sensors which detect the location of the two pong paddles (the users' hands). These locations are translated to our 'game coordinates' and subsequently implemented in our game logic to determine the trajectory of the ball. The ball, the rectangular game area, and the ball's trajectory are represented in Sawyer's world coordinate frame, and the arm will trace out these trajectories in response to the gameplay.
 
+### Video Demo:
 [Link to demo video](https://youtu.be/s9HeBjx-4tQ)
 
 ### Arm Control
@@ -90,5 +91,4 @@ From the Sawyer workspace containing this package, run:
 
 Configurable parameters can be edited in the launch file.
 
-### Video Demo:
-https://drive.google.com/file/d/1s3wx5P8GX7cLwMPniy2SaOlxIW4JAoGG/view?usp=sharing
+
