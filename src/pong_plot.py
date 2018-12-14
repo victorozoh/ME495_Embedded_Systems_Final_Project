@@ -130,7 +130,7 @@ def pong_plot(bounds, plot_size, left_paddle_position, right_paddle_position, pa
     draw_floor_ceil(plot_size)
     # Loop through all horizontal lines
     for row in range(plot_size.y+1):
-        # Draw Paddle_leftpaddle_size
+        # Draw Paddle_left
         draw_paddle(row, bounds, plot_size, left_paddle_position, paddle_size)
         # Draw Line
         draw_game_line(row, bounds, plot_size, ball_position)
