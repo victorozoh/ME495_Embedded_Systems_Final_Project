@@ -9,6 +9,8 @@
 
 The purpose of this project was to develop an interactive game of Pong on Sawyer. This system includes ultrasonic distance sensors which detect the location of the two pong paddles (the users' hands). These locations are translated to our 'game coordinates' and subsequently implemented in our game logic to determine the trajectory of the ball. The ball, the rectangular game area, and the ball's trajectory are represented in Sawyer's world coordinate frame, and the arm will trace out these trajectories in response to the gameplay.
 
+[Link to demo video](https://youtu.be/s9HeBjx-4tQ)
+
 ### Arm Control
 
 ##### armcontrolT node
@@ -23,8 +25,6 @@ Publishes to:
 The Twist and Pose messages used are both with respect to Sawyer's world frame. We use the `/intera_interface/Limb` class to store current joint angles of Sawyer (via `limb.joint_angles()`) and to set calculated joint velocities (via `limb.set_joint_velocities()`).
 
  The joint velocities are calculated by using `mr.Adjoint()` and `mr.JacobianSpace()` from the Modern Robotics Code Library (mr) as well as `np.linalg.pinv()` from NumPy (np). The pseudoinverse of the space Jacobian was dot multiplied with our end-effector Twist to find updated joint velocities.
-
-[Link to demo video](https://youtu.be/s9HeBjx-4tQ)
 
 ### Pong logic
 
