@@ -26,6 +26,8 @@ The Twist and Pose messages used are both with respect to Sawyer's world frame. 
 
  The joint velocities are calculated by using `mr.Adjoint()` and `mr.JacobianSpace()` from the Modern Robotics Code Library (mr) as well as `np.linalg.pinv()` from NumPy (np). The pseudoinverse of the space Jacobian was dot multiplied with our end-effector Twist to find updated joint velocities.
 
+ We use the home configuration matrix and world frame screws from [sawyer_MR_description.py](\src\sawyer_MR_description.py) for computing the Jacobian.
+
 ### Pong logic
 
 ##### pong_MASTER node

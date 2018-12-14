@@ -1,7 +1,0 @@
-<launch>
-
-  <node name="sense_hands" pkg="sawyer_pong" type = "sense_hands.py"/>
-  <node name="pong_master" pkg="sawyer_pong" type="pong_MASTER.py" output="screen"/>
-  <node name="armcontrol" pkg="sawyer_pong" type="armcontrol.py"/>
-
-</launch>
