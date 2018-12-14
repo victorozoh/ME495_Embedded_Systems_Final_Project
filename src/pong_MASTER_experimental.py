@@ -7,6 +7,7 @@
 import 	rospy
 import 	numpy as np
 import hand_interface as hif
+import head_display_image as hdi
 import 	pyfiglet
 from pong_plot import *
 from geometry_msgs.msg import (
@@ -40,7 +41,7 @@ expected_position=xy_vector(0,0)
 combined=xy_vector(0,0)
 vel_new=xy_vector(0,0)
 ball_measured_position = xy_vector(0,0)
-plot_size = xy_vector(200,50)
+plot_size = xy_vector(50,25)
 #######################################
 # Helper Functions
 
@@ -48,14 +49,10 @@ def disp_score(score):
 	pyfiglet.figlet_format('SCORE', font = "drpepper")
 	print(score[0]," to ",score[1])
 	return 1
-
-
 def disp_win(score):
 	if score[0] > score[1]:
-        #print(" LEFT PLAYER WINS ")
 		pyfiglet.figlet('LEFT PLAYER WINS')
 	else:
-        #print(" RIGHT PLAYER WINS ")
 		pyfiglet.figlet_format('RIGHT PLAYER WINS')
 
 def disp_game(bounds, left_hand_position,right_hand_position, ball_logic_position, paddle_size):
