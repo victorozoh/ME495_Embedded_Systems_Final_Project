@@ -72,13 +72,13 @@ def publish_measurements():
 	# None needed. Tick rate is defined on the arduino
 
 	while not rospy.is_shutdown():
-		# Wait for message on Serial
+		# Wait for message on Serial. TryExcept block ensures that serial issues won't crash the program
 		try:
 			data_in = ser.readline()
 		except:
 			pass
 
-		# interpret the data
+		# interpret the data. TryExcept block ensures that bad incoming data (e.g. some wrong character) won't crash the program.
 		try:
 			[meas_left, meas_right] = process_incoming_data(data_in)
 
