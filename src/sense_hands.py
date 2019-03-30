@@ -15,13 +15,17 @@ from sawyer_pong.msg import measured_distances
 
 #######################################
 # Helper Functions
+# This function adjusts the measurements per some calibration technique
 def adjust_measurement(measurement, calibration_value):
 	return measurement*calibration_value
 
 def process_incoming_data(data_in):
+    # This function splits the data into discrete values
 	# remove end-line characters
 	data_in = data_in[:-2]
+    # Split on the comma
 	splitData = data_in.split(',')
+    # Return numbers
 	return [int(splitData[0]), int(splitData[1])]
 	#[int(s) for s in data_in.split(',')]
 
